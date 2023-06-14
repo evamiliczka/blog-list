@@ -5,7 +5,11 @@ require("dotenv").config();
 
 const { info } = require("./logger");
 
-const { PORT, MONGODB_URI } = process.env;
+const { PORT } = process.env;
+
+const MONGODB_URI = process.env.NODE_ENV === 'test' 
+  ? process.env.TEST_MONGODB_URI
+  : process.env.MONGODB_URI;
 
 info(`Port is ${PORT}, URL is ${MONGODB_URI}`);
 
