@@ -9,3 +9,14 @@ Content-Type: application/json
   "url": "https://something",
   "likes": 4
 }
+###
+PUT http://localhost:3003/api/blogs/647f3defdce9b42b165ecb96
+Content-Type: application/json
+
+{
+  "author": "John Doe",
+  "url": "https://something",
+  "likes": 7
+}
+###
+DELETE http://localhost:3003/api/blogs/647f3deedce9b42b165ecb94

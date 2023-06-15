@@ -2,13 +2,28 @@ require('express-async-errors');
 
 const blogsRouter = require('express').Router();
 const Blog = require('../models/blog');
-const { info } = require('../utils/logger');
+const { info, error } = require('../utils/logger');
 
 info('This is blogs.js');
 
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({});
   response.json(blogs);
+});
+
+blogsRouter.get('/:id', async (request, response) => {
+  // console.log('This is get by id, request');
+  const blog = await Blog.findById(request.params.id);
+
+  if (blog) response.json(blog);
+  else {
+    // valid id, non existing blog
+    error('Blog not found error');
+    response.status(404).end();
+  }
+
+  // if id is INVALID, i.e. error.name === 'CastError', then express-async-errors package finds and executes
+  // errorHandler in middleware.js , with status 400, 'malformed id
 });
 
 blogsRouter.post('/', async (request, response) => {
@@ -19,5 +34,21 @@ blogsRouter.post('/', async (request, response) => {
   const savedBlog = await blog.save();
   response.status(201).json(savedBlog);
 });
+
+blogsRouter.delete('/:id', async (request, response) => {
+  await Blog.findByIdAndRemove(request.params.id);
+  response.status(204).end();
+});
+
+blogsRouter.put('/:id', async (request, response) => {
+  const { title, author, url, likes} = request.body;
+   info('This is put, we are going to put ', title, author, url, likes)
+  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id,
+    { title, author, url, likes },
+    { new: true, runValidators: true, context: 'query'} );
+
+ 
+  response.status(204).json(updatedBlog);
+})
 
 module.exports = blogsRouter;
