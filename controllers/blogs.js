@@ -1,10 +1,11 @@
+/* eslint-disable no-underscore-dangle */
 require('express-async-errors');
 
 const blogsRouter = require('express').Router();
 const Blog = require('../models/blog');
+const User = require('../models/user');
 const { info, error } = require('../utils/logger');
 
-info('This is blogs.js');
 
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({});
@@ -27,11 +28,20 @@ blogsRouter.get('/:id', async (request, response) => {
 });
 
 blogsRouter.post('/', async (request, response) => {
-  const blog = new Blog(request.body);
+  // eslint-disable-next-line prefer-const
+  let { title, author, url, likes, user } = request.body;
   // if likes is not defined, set it to 0 (if it is 0, does not matter)
-  if (!blog.likes) blog.likes = 0;
 
-  const savedBlog = await blog.save();
+  if (likes) likes = 0;
+
+ // temo
+    const allUsers = await User.find({});
+    user = allUsers[Math.floor(Math.random() * (allUsers.length-1))]._id;
+    info('setting user to ', user)
+    
+   const newBlogModel = await new Blog({ title, author, url, likes, user });
+  info('model to save  ', newBlogModel);
+  const savedBlog = await newBlogModel.save();
   response.status(201).json(savedBlog);
 });
 
