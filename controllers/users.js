@@ -3,7 +3,7 @@ require('express-async-errors');
 const express = require('express');
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
-const { info, error } = require('../utils/logger');
+const { info } = require('../utils/logger');
 
 const usersRouter = express.Router();
 
@@ -17,6 +17,14 @@ usersRouter.get('/', async (request, response) => {
 usersRouter.post('/', async (request, response) => {
     info('Request body ', request.body);
     const { name, username, password } = request.body;
+    // password must be chceked before Sent to MongoDB, as it is send hashed!!!
+    if (!password) {
+        return response.status(400).json({ error: 'password missing' })
+    }
+    if (password.length < 3)
+       return response.status(400).json({ error: 'password must be at least 3 chars long' }) 
+
+
     const passwordHash = await bcrypt.hash(password, 10);
 
     const newUser = new User({ name, username, passwordHash })
@@ -24,7 +32,7 @@ usersRouter.post('/', async (request, response) => {
 
     const savedUser = await newUser.save();
     info('This is my saved user ', savedUser);
-    response.status(201).json(savedUser);
+    return response.status(201).json(savedUser);
 }
 )
 
