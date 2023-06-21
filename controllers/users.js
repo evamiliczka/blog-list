@@ -10,7 +10,7 @@ const usersRouter = express.Router();
 
 
 usersRouter.get('/', async (request, response) => {
-    const allUsers = await User.find({});
+    const allUsers = await User.find({}).populate('blogs');
     response.json(allUsers);
 })
 

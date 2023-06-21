@@ -8,7 +8,7 @@ const { info, error } = require('../utils/logger');
 
 
 blogsRouter.get('/', async (request, response) => {
-  const blogs = await Blog.find({});
+  const blogs = await Blog.find({}).populate('user');
   response.json(blogs);
 });
 
@@ -29,19 +29,24 @@ blogsRouter.get('/:id', async (request, response) => {
 
 blogsRouter.post('/', async (request, response) => {
   // eslint-disable-next-line prefer-const
-  let { title, author, url, likes, user } = request.body;
+  let { title, author, url, likes } = request.body;
   // if likes is not defined, set it to 0 (if it is 0, does not matter)
 
   if (likes) likes = 0;
 
  // temo
-    const allUsers = await User.find({});
-    user = allUsers[Math.floor(Math.random() * (allUsers.length-1))]._id;
-    info('setting user to ', user)
+  const allUsers = await User.find({});
+  const randomUser = allUsers[Math.floor(Math.random() * (allUsers.length))];
+  info('setting user to ', randomUser);
     
-   const newBlogModel = await new Blog({ title, author, url, likes, user });
+  const newBlogModel = new Blog({ title, author, url, likes, user: randomUser._id });
   info('model to save  ', newBlogModel);
   const savedBlog = await newBlogModel.save();
+
+  randomUser.blogs = randomUser.blogs.concat(savedBlog._id);
+
+  await randomUser.save();
+
   response.status(201).json(savedBlog);
 });
 
