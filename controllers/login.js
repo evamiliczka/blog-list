@@ -7,9 +7,9 @@ const loginRouter = require('express').Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
-const User = require('../models/user')
+const User = require('../models/user');
 
-const { info } = require('../utils/logger');
+// const { info } = require('../utils/logger');
 
 const isPasswordCorrect = async (user, password) => {
     if ( user === null ) return false;
